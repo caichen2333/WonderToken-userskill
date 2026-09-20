@@ -1,0 +1,8 @@
+interface:
+  display_name: "WonderToken 玩途"
+  short_description: "让宠物带着持续成长的内心去旅行 🐾"
+  brand_color: "#65A30D"
+  default_prompt: "Use $wondertoken to看看我的宠物此刻在想什么、又记住了哪段旅行 🐾"
+
+policy:
+  allow_implicit_invocation: true
