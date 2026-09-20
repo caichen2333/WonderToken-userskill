@@ -48,7 +48,7 @@ function permit(issuedAt: string) {
       activityCatalogVersion: "activity-v1",
       maximumVirtualDays: 28,
       firstJourneyRealMinutesPerVirtualDay: 1 / 6,
-      laterJourneyRealMinutesPerVirtualDay: 1 / 6,
+      laterJourneyRealMinutesPerVirtualDay: 1,
       maximumEventsPerSync: 64,
       encounterRate: 0.3,
     },
@@ -112,7 +112,7 @@ test("offline SQLite keeps a durable pending journey without storing player cred
 });
 
 
-test("offline first and paid journeys preserve fractional days and the 280-second cap", async () => {
+test("offline first and paid journeys use their permitted clocks and preserve fractional days", async () => {
   for (const free of [true, false]) {
     const root = await mkdtemp(join(tmpdir(), "wondertoken-fast-offline-"));
     const issuedAt = "2026-09-03T00:00:00.000Z";
@@ -123,12 +123,62 @@ test("offline first and paid journeys preserve fractional days and the 280-secon
       db.prepare("INSERT INTO permits (id,token,snapshot_json,status,issued_at) VALUES (?,?,?,?,?)")
         .run(snapshot.permitId, snapshot.permit, JSON.stringify(snapshot), "available", issuedAt);
       startOfflineJourney(db, { startedAt: issuedAt });
-      for (const [seconds, days] of [[5, 0.5], [10, 1], [280, 28], [290, 28]] as const) {
+      const cases = free
+        ? [[5, 0.5], [10, 1], [280, 28], [290, 28]] as const
+        : [[30, 0.5], [60, 1], [1680, 28], [1740, 28]] as const;
+      for (const [seconds, days] of cases) {
         const prepared = prepareOfflineProgress(db, {
           asOf: new Date(Date.parse(issuedAt) + seconds * 1000).toISOString(),
         });
         assert.equal(prepared.elapsedTravelDays, days);
       }
+    } finally { db.close(); }
+  }
+});
+
+test("offline active journeys preserve frozen and legacy clocks", async () => {
+  for (const [frozenDuration, seconds, expectedDays] of [
+    [60_000, 30, 0.5],
+    [undefined, 10, 1],
+  ] as const) {
+    const root = await mkdtemp(join(tmpdir(), "wondertoken-active-clock-"));
+    const issuedAt = "2026-09-03T00:00:00.000Z";
+    const db = await openOfflineDatabase(root);
+    try {
+      const activeJourney = {
+        journeyId: "00000000-0000-4000-8000-000000000099",
+        status: "travelling",
+        startedAt: issuedAt,
+        origin: HOME,
+        currentLocation: HOME,
+        reportedThroughAt: issuedAt,
+        progressRevision: 0,
+        progressCount: 0,
+        freeWaiverApplied: false,
+        startType: "free",
+        accumulatedOriginalCost: "0",
+        returnExpenseEstimate: "0",
+        directives: [],
+        ...(frozenDuration === undefined ? {} : { virtualDayDurationMs: frozenDuration }),
+      };
+      const snapshot = { ...permit(issuedAt), firstJourneyFreeAvailable: false, activeJourney };
+      db.prepare("INSERT INTO permits (id,token,snapshot_json,status,issued_at) VALUES (?,?,?,?,?)")
+        .run(snapshot.permitId, snapshot.permit, JSON.stringify(snapshot), "available", issuedAt);
+      db.prepare(`INSERT INTO local_journeys
+        (id,permit_id,snapshot_json,started_at,reported_through_at,status,current_ref_json,canonical_journey_id)
+        VALUES (?,?,?,?,?,'travelling',?,?)`).run(
+          activeJourney.journeyId,
+          snapshot.permitId,
+          JSON.stringify(snapshot),
+          issuedAt,
+          issuedAt,
+          JSON.stringify({ kind: "confirmed", place: HOME }),
+          activeJourney.journeyId,
+        );
+      const prepared = prepareOfflineProgress(db, {
+        asOf: new Date(Date.parse(issuedAt) + seconds * 1000).toISOString(),
+      });
+      assert.equal(prepared.elapsedTravelDays, expectedDays);
     } finally { db.close(); }
   }
 });

@@ -39,6 +39,8 @@ v3 旅行进展只按 [progress-run.md](references/progress-run.md) 的 `progres
 
 首次默认执行西藏10日自驾环线，保留既定路线；后续新旅行使用结构化旅行要求和 v3 编译器；旧旅行保持已保存版本。未指定时长默认为约14天；明确“玩满 N 天”必须传 `duration: {days:N, mode:"exact"}`，禁止改写成“最多”或“尽量”。城市数由时长、活动供给、交通和单城10日上限动态决定，不得默认两城或五城。除非明确指令，否则城市、景点均不重游；归家、中转、同一次连续停留不算重游。不能靠模型提案、慢游或换景点名称放开去重。
 
+旅行中明确修改时长时，先调用一次 `get_game_state`，读取 `activeJourney.progressRevision` 和 `activeJourney.travelRequirements`；保留未被用户修改的要求，将新时长合并为完整 requirements 后调用一次 `add_journey_directive`。不得从进展 run、session 或归家状态猜测版本号。返回 `STALE_JOURNEY_REVISION` 时只刷新状态并用新的 operation ID 重试一次；再次冲突就说明行程刚发生变化并停止，禁止枚举 revision、反复查询或循环提交。成功响应即表示新计划已生效，不要重新出发或立即推进旅行。
+
 明确“再去某城市”使用 visit 指令的 `visitScope: city`，只游览该城新景点；明确“再去某景点”使用 `place`；“经过某地换车”使用 `transit`，不能顺带重游。可用 `get_travel_footprints` 查询终身足迹。首次西藏自驾不被双城规划覆盖。下面提到旧版十日首旅和28日归家时，只对缺失新版本标记的旧旅行适用。
 
 ## 领养与出发 🎒

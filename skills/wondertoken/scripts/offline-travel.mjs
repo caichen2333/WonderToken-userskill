@@ -306,10 +306,12 @@ export function startOfflineJourney(db, input = {}) {
 
 function virtualDayDurationMs(journey) {
   const permit = journey.snapshot;
-  const free = permit.activeJourney
-    ? permit.activeJourney.freeWaiverApplied
-    : permit.firstJourneyFreeAvailable;
-  return (free
+  if (permit.activeJourney) {
+    // Active journeys keep the clock frozen at departure. Missing snapshots are
+    // pre-change journeys and therefore retain the former ten-second pace.
+    return permit.activeJourney.virtualDayDurationMs ?? 10_000;
+  }
+  return (permit.firstJourneyFreeAvailable
     ? permit.rules.firstJourneyRealMinutesPerVirtualDay
     : permit.rules.laterJourneyRealMinutesPerVirtualDay) * 60_000;
 }

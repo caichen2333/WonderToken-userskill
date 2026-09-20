@@ -310,3 +310,9 @@ WonderToken 采用“**本地 Skill + 公网游戏服务**”的结构。公网�
 - 修改版不得声称是 WonderToken 官方版本；品牌使用规则见 [TRADEMARKS.md](TRADEMARKS.md)。
 - 问题反馈与功能建议请提交 [GitHub Issue](https://github.com/caichen2333/WonderToken-userskill/issues)；安全问题请按 [SECURITY.md](SECURITY.md) 私下报告。
 - 商业授权请联系：caichen0723@163.com。
+
+## 一起把玩途带得更远
+
+欢迎每一位对 WonderToken 感兴趣的朋友参与共建。作者并非技术背景，目前在整体架构设计，以及如何用更少的 Token 和额度生成更丰富、更连贯的旅行故事等方面，仍遇到不少瓶颈。如果你对这些问题有想法，欢迎提出建议、提交 Issue 或贡献代码，一起把这个项目做得更轻、更稳，也更有趣。
+
+也欢迎基于这个 Skill 进行改造，探索新的玩法、叙事方式与互动体验。只要修改版遵循项目的服务端协议和校验规则，能够通过合法校验并将旅行故事正常上传到服务端，就有机会让更多玩家看到你的创意，以及宠物们走过的不同世界。
