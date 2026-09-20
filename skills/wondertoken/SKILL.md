@@ -1,15 +1,20 @@
 ---
 name: wondertoken
 description: Manage the user's WonderToken pet, private Soul, virtual trips, 玩途币, Token settlement, travel diaries, encounters, achievements, memory images, and archives. Use when the user wants to play with their 玩途 pet, read or manage its inner world, or check its journey. Do not use for real-world travel planning.
+license: PolyForm Noncommercial 1.0.0 (software); CC BY-NC-SA 4.0 (documentation and images)
+metadata:
+  wondertoken-runtime: Node.js 24.14+ (<25); npm for dependency recovery; local filesystem access; HTTPS access to the configured WonderToken service
 ---
 
 # WonderToken 玩途 🐾
 
 WonderToken 是虚拟宠物旅行：宠物把远方、偶遇和心情写进旅行信寄回家。它不提供现实预订、报价或行程承诺。
 
+运行要求：Node.js 24.14+（低于 25）、本地文件系统访问，以及访问已配置 WonderToken 服务的 HTTPS 网络；仅依赖恢复需要 npm。图片功能是按宿主能力启用的可选增强，不影响官方内置形象和文字玩法。
+
 ## 连接与调用
 
-首次激活、连接失败或用户要求使用说明时，先运行 `node "<absolute-skill-root>/scripts/setup.mjs" doctor`；安装与恢复细节见 [onboarding.md](references/onboarding.md)。正常游玩不重复展示诊断或教程。当前宿主的图片能力须按 [capabilities.md](references/capabilities.md) 实际发现，不能按宿主品牌推断。
+首次激活、连接失败或用户要求使用说明时，先将当前 Skill 目录解析为绝对路径，再运行 `node "<absolute-skill-root>/scripts/setup.mjs" doctor`；安装与恢复细节见 [onboarding.md](references/onboarding.md)。这里的 `<absolute-skill-root>` 只是跨宿主路径占位符，不代表固定安装位置。正常游玩不重复展示诊断或教程。当前宿主的图片能力须按 [capabilities.md](references/capabilities.md) 实际发现，不能按宿主品牌推断。
 
 所有服务调用都通过随包脚本，不使用宿主注册的 WonderToken MCP。身份、服务地址和密钥由脚本管理；不得读取、展示、编造、要求粘贴或手工传递 `playerKey`。无参数读取直接运行 `client.mjs call <tool-name>`，例如 `client.mjs call get_pet_soul`；有参数时把 JSON 写入文件并使用 `--input file.json`。不要添加 `--json` 或猜测其他参数；需要核对时先运行 `client.mjs --help`，仅排障时用 `client.mjs tools --compact <工具名>`。常用调用见 [command-recipes.md](references/command-recipes.md)。
 
@@ -65,6 +70,8 @@ v3 旅行进展只按 [progress-run.md](references/progress-run.md) 的 `progres
 返回格式为旅行来信、段落账单、余额、位置、回家状态和独立的 `🗓️ 旅行日` 信息；它延续原有的 `⏱️ 已旅行时长` 语义，不能只藏在路线、足迹、旅程或嵌套状态中。使用与内容匹配的 emoji 增加趣味性：旅行来信用 `📮`，行程用 `🧭`，路线用 `🗺️`（救援用 `🛟`），账单依次用 `🪙`、`💸`、`👛`，旅行日用 `🗓️`，纪念照用 `📸`；正文每个自然段最多再点缀 1 个与情节匹配的 emoji，不连续堆叠、不替代文字或事实。新版休息、用餐期间按 stateAfter.currentActivity 描述当前生活状态；currentLocation 是最后确认抵达的地点，不能把它理解成仍在该馆内游览。旅行日使用累计旅行日，以 `stateAfter.elapsedTravelDays` 为准，例如“🗓️ 旅行日：6 个旅行日”；整数不带小数，非整数最多一位，不换算成现实时长。未归家可给 2–3 个仅影响未来的口令；自动归家后不再给旅行口令。
 
 `window.automaticHomecoming: true` 必须在本封完成返程并归家，不添加 return 指令或再问用户。默认首旅第 10 日对应 `planned-homecoming`，其他旅行第 28 日对应 `maximum-duration`，已在返程的到家日对应 `return-arrival`。
+
+异常救援归家属于失败结束，只保证宠物安全回家：不计入完成旅行次数，不生成成功旅行统计、成长奖励或到访记录。展示结果时明确说明本趟未完成，不得称为完成一次旅行。
 
 ## 归家、Soul 与纪念照
 

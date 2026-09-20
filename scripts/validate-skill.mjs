@@ -6,7 +6,12 @@ import { fileURLToPath } from "node:url";
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const root = resolve(repositoryRoot, "skills/wondertoken");
 const skill = await readFile(resolve(root, "SKILL.md"), "utf8");
-assert.match(skill, /^---\r?\nname: wondertoken\r?\ndescription: .+\r?\n---/);
+const frontmatter = skill.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+assert.ok(frontmatter, "SKILL.md must start with YAML frontmatter");
+assert.match(frontmatter[1], /^name: wondertoken$/m);
+assert.match(frontmatter[1], /^description: .+$/m);
+assert.match(frontmatter[1], /^license: PolyForm Noncommercial 1\.0\.0 \(software\); CC BY-NC-SA 4\.0 \(documentation and images\)$/m);
+assert.match(frontmatter[1], /^metadata:\r?\n  wondertoken-runtime: Node\.js 24\.14\+ .+HTTPS.+$/m);
 assert.doesNotMatch(skill, /\[TODO:|absolute-plugin-root|向上两级/);
 
 async function checkMarkdown(file) {
@@ -38,4 +43,3 @@ if (defaults.mcpUrl !== null) {
   validateMcpUrl(defaults.mcpUrl);
 }
 console.log("Independent WonderToken Skill structure validated.");
-

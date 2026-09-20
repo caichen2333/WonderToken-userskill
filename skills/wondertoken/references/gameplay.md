@@ -104,6 +104,8 @@ The first query fixes the historical framework generated so far—route, spendin
 
 Only final progress settles bond growth, visited cities, encounter collection, achievements, and the immutable completion-statistics snapshot. Number of queries, elapsed days, and detail questions never multiply rewards or encounter probability.
 
+Rescue homecoming is a failed terminal outcome, not a successful journey completion. It returns the pet safely but never increments journey count, creates completion statistics, grants growth or achievements, or records unfinished destinations as visited.
+
 After the final progress succeeds, perform the private Soul evolution workflow in `soul.md`. Soul failure does not roll back or delay any journey settlement, archive, statistic, achievement, or image step.
 
 The final response uses the frozen completion summary: traveler-pet encounter count, unique traveler count, total distance, route original cost, actual charge, and available historical percentiles. Fewer than ten comparable records suppress the percentile without suppressing the raw value or cohort size.

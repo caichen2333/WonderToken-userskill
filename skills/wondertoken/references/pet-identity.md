@@ -17,9 +17,9 @@
 
 图片位于 `<absolute-skill-root>/assets/pets/<assetId>.png`。宿主能展示图片时提供预览；无法展示时给出名字与文字描述。选中后在 `prepare_pet_adoption.visual` 传 `{ "source": "official", "assetId": "..." }`，无需生图或上传。
 
-## 可选 Codex Pet 导入
+## 可选宿主扩展：Codex Pet 导入
 
-`pet-options.mjs` 已在当前宿主为 Codex 时完成一次自定义宠物发现，不再重复扫描。状态必须明确告知玩家：`found` 表示发现一个可选形象，`selection-required` 表示发现多个并须选择，`none` 表示未发现，`scan-failed` 表示扫描失败且官方六选项仍可用。底层兼容命令为：
+这一节只适用于实际提供 Codex Pet 数据的宿主，是对开放 Agent Skill 的可选增强；其他宿主跳过该分支，不要求安装 Codex、读取其目录或模拟该能力。`pet-options.mjs` 已在当前宿主为 Codex 时完成一次自定义宠物发现，不再重复扫描。状态必须明确告知玩家：`found` 表示发现一个可选形象，`selection-required` 表示发现多个并须选择，`none` 表示未发现，`scan-failed` 表示扫描失败且官方六选项仍可用。底层兼容命令为：
 
 ```text
 node "<absolute-skill-root>/scripts/pet-visual.mjs" discover
