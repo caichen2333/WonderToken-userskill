@@ -10,6 +10,11 @@ import { CONTRACT_FINGERPRINT } from './progress-contract.generated.mjs';
 
 const dataOf=result=>result?.data??result;
 const RUN_USAGE='progress-run.mjs run --source source.json [--input proposal.json] --output run.json | resume --context run.json --output run.json [--wait true] | enrich --context run.json --input proposal.json --output enriched.json | control --context run.json --action pause|resume|cancel --output run.json';
+export const pendingRunOutput=({tool,operationId})=>({
+  schemaVersion:'progress-run-local-v1',
+  data:null,
+  pending:{tool,operationId},
+});
 export const formatTravelDays=value=>{
   const days=Number(value);
   if(!Number.isFinite(days))return String(value);
@@ -39,6 +44,10 @@ export async function runProgress(argv=process.argv.slice(2)) {
     if(saved?.tool===name&&!await readJson(`${output}.${saved.operationId}.result.json`)&&JSON.stringify(saved.args)===JSON.stringify(args))request.operationId=saved.operationId;
     await writeJson(`${output}.request.json`,{tool:name,args,operationId:request.operationId});
     await writeJson(`${output}.${request.operationId}.request.json`,request);
+    // Invalidate any result left at this path by an older journey before the
+    // network call starts. If the call times out, callers must see a pending
+    // request instead of mistaking stale journey data for the current run.
+    await writeJson(output,pendingRunOutput({tool:name,operationId:request.operationId}));
     const result=await callTool(name,request);
     await writeJson(`${output}.${request.operationId}.result.json`,result);
     if(result?.error||result?.isError) {console.log(JSON.stringify(result));process.exitCode=1;return undefined;}
